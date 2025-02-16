@@ -41,6 +41,7 @@ namespace ELMS.API.Controllers
 
             // Use AutoMapper to map the User entity to UserDTO
             //var userDto = _mapper.Map<UserDTO>(user);
+
             return null;
         }
 
@@ -48,6 +49,7 @@ namespace ELMS.API.Controllers
         [HttpPost]
         public ActionResult<LeaveRequestDTO> CreateLeaveRequest(LeaveRequest leaveRequest)
         {
+            
             return null;
         }
 
