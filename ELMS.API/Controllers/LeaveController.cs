@@ -2,70 +2,138 @@
 using ELMS.API.DTO;
 using ELMS.API.Models;
 using ELMS.API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace ELMS.API.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]    
+    [ApiController]
+    [Authorize]
     public class LeaveController : Controller
     {
 
-        private readonly ILeaveService _leaveService;
+        private readonly ILeaveService _service;
         private readonly IMapper _mapper;
+        private readonly ILogger _logger;
 
-        public LeaveController(ILeaveService leaveService, IMapper mapper)
+        public LeaveController(ILeaveService service, IMapper mapper)
         {
-            _leaveService = leaveService;
+            _service = service;
             _mapper = mapper;
         }
 
 
         // GET: LeaveController
-        [HttpGet]
-        public ActionResult<List<LeaveRequestDTO>> GetLeaveRequest()
+        [HttpGet("GetLeaveRequests")]
+        public ActionResult<List<LeaveRequestDTO>> GetLeaveRequests()
         {
-            return null;
+            List<LeaveRequest>? leaveRequests = new List<LeaveRequest>();
+            List<LeaveRequestDTO>? leaveRequestsDTO = null;
+            try
+            {
+                var currentUser = HttpContext.User.FindFirstValue("username");
+                //currentUser = "anand";
+                leaveRequests = _service.GetLeaveRequests(currentUser);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error Occured at LeaveService");
+            }
+
+            leaveRequestsDTO = leaveRequests != null ? _mapper.Map<List<LeaveRequestDTO>>(leaveRequests): null;
+            return leaveRequestsDTO;
         }
 
         // GET: LeaveController/Details/5
-        [HttpGet("{id}")]
+        [HttpGet("GetLeaveRequestById/{id}")]
         public ActionResult<LeaveRequestDTO> GetLeaveRequestById(int id)
         {
-            //var user = await _userService.GetUserById(id);
-
-            //if (user == null)
-            //{
-            //    return NotFound();
-            //}
-
-            // Use AutoMapper to map the User entity to UserDTO
-            //var userDto = _mapper.Map<UserDTO>(user);
-
-            return null;
+            LeaveRequest leaveRequest = null;
+            LeaveRequestDTO leaveRequestDTO = null;
+            try
+            {
+                if (id == null)
+                {
+                    return null;
+                }
+                leaveRequest = _service.GetLeaveRequestById(id);
+            }
+            catch(Exception ex)
+            {
+                leaveRequestDTO = null;
+                _logger.LogError(ex, "Error Occured at LeaveRepository");
+            }
+            // Use AutoMapper to map the LeaveRequest entity to LeaveRequestDTO
+            leaveRequestDTO = leaveRequest != null ? _mapper.Map<LeaveRequestDTO>(leaveRequest): null;
+            return leaveRequestDTO;
         }
 
         // POST: LeaveController/Create
-        [HttpPost]
-        public ActionResult<LeaveRequestDTO> CreateLeaveRequest(LeaveRequest leaveRequest)
+        [HttpPost("CreateLeaveRequest")]
+        public string CreateLeaveRequest(LeaveRequest leaveRequest)
         {
-            
-            return null;
+            string response = string.Empty;
+            try
+            {
+                if(leaveRequest == null)
+                {
+                    return null;
+                }
+                string? user = HttpContext.User.FindFirstValue("username");
+                leaveRequest.Status = "Pending";
+                //user = "anand";
+                response = _service.CreateLeaveRequest(leaveRequest, user);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error Occured at LeaveController - CreateLeaveRequest");
+                return "Error Occurred";
+            }
+            return response;
         }
 
-        // GET: LeaveController/Edit/5
-        [HttpPut("{id}")]
-        public ActionResult UpdateLeaveRequest([FromRoute] int id, [FromBody] LeaveRequest product)
+        [HttpPut("approve")]
+        public ActionResult<LeaveRequestDTO> ApproveLeaveRequest(LeaveRequest leaveRequest)
         {
-            return null;
+            LeaveRequest updatedleaveRequest = null;
+            LeaveRequestDTO updatedLeaveRequestDTO = null;
+            try
+            {
+                if(leaveRequest.LeaveRequestId == null)
+                {
+                    return NotFound();
+                }
+                updatedleaveRequest = _service.ApproveLeaveRequest(leaveRequest);
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "Error Occured at LeaveController - ApproveLeaveRequest");
+            }
+            updatedLeaveRequestDTO = updatedleaveRequest != null ? _mapper.Map<LeaveRequestDTO>(updatedleaveRequest) : null;
+            return updatedLeaveRequestDTO;
         }
 
-
-        // GET: LeaveController/Delete/5
-        [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        [HttpPut("reject")]
+        public ActionResult<LeaveRequestDTO> RejectLeaveRequest(LeaveRequest leaveRequest)
         {
-            return null;
-        }       
+            LeaveRequest updatedleaveRequest = null;
+            LeaveRequestDTO updatedLeaveRequestDTO = null;
+            try
+            {
+                if (leaveRequest.LeaveRequestId == null)
+                {
+                    return NotFound();
+                }
+                updatedleaveRequest = _service.RejectLeaveRequest(leaveRequest);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error Occured at LeaveController - RejectLeaveRequest");
+            }
+            updatedLeaveRequestDTO = updatedleaveRequest != null ? _mapper.Map<LeaveRequestDTO>(updatedleaveRequest) : null;
+            return updatedLeaveRequestDTO;
+        }
     }
 }
