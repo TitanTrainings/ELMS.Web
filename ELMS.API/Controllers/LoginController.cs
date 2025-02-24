@@ -16,11 +16,13 @@ namespace ELMS.API.Controllers
     {
         private readonly IConfiguration _configuration;
         private readonly IJWTTokenService _jwtTokenService;
+        private readonly IAuthService _authService;
 
-        public LoginController(IConfiguration configuration,IJWTTokenService jWTTokenService)
+        public LoginController(IConfiguration configuration,IJWTTokenService jWTTokenService, IAuthService authService)
         {
             _configuration = configuration;
             _jwtTokenService = jWTTokenService;
+            _authService = authService;
         }
         [HttpPost]        
         public IActionResult Login(User user)
@@ -28,18 +30,20 @@ namespace ELMS.API.Controllers
             //sample object to hold db object of user record from database post successfull validation.
             User _user = new User();
 
-            
-
-
-            // Replace this with proper user validation (e.g., database values)
-            //if (username != _user.Username || password != _user.Password)
-            //{
-            //    return Unauthorized();
-            //}
+            _user = _authService.AuthenticateUser(user.Username, user.Password);
+            if(_user == null)
+            {
+                return Unauthorized();
+            }
 
             // do the validation and prepare the required fields and create jwt service to get the jwt in string.
             // Creation and generation of token should be in JWTToken service.
             var token = _jwtTokenService.GenerateJwtToken(user.Username, user.Password, "manager");
+
+            if(token == null)
+            {
+                return Unauthorized(new { message = "Invalid Credentials" });
+            }
 
             return Ok(new { Token = token });
         }

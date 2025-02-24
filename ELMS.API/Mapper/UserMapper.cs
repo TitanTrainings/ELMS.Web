@@ -15,7 +15,9 @@ namespace ELMS.API.Mapper
 
                 .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role))
 
-                .ForMember(dest => dest.LeaveBalance, opt => opt.MapFrom(src => src.LeaveBalance));
+                .ForMember(dest => dest.SickLeaveBalance, opt => opt.MapFrom(src => src.SickLeaveBalance))
+
+                .ForMember(dest => dest.VacationLeaveBalance, opt => opt.MapFrom(src => src.VacationLeaveBalance));
 
         }
     }

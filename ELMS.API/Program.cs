@@ -1,5 +1,8 @@
 using ELMS.API.Data;
 using ELMS.API.Mapper;
+using ELMS.API.Repositories;
+using ELMS.API.Repository;
+using ELMS.API.Services;
 using ELMS.API.Utility;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -9,13 +12,15 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddLogging();
+
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionString"));
 });
 
 builder.Services.AddCors(options =>
@@ -55,6 +60,7 @@ builder.Services.AddAuthentication(options =>
 
 // Register the dependency injection services
 builder.Services.AddDependecyInjectionServices();
+
 
 // Register AutoMapper
 builder.Services.AddAutoMapper(typeof(LeaveRequestMapper));

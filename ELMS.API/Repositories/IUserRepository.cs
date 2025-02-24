@@ -1,9 +1,8 @@
 ﻿using ELMS.API.DTO;
-using Microsoft.AspNetCore.Mvc;
 
-namespace ELMS.API.Services
+namespace ELMS.API.Repositories
 {
-    public interface IUserService
+    public interface IUserRepository
     {
         public UserLeaveBalanceDTO GetLeaveBalance(string user);
     }

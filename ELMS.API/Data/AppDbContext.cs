@@ -9,7 +9,8 @@ namespace ELMS.API.Data
         {
         }
 
-        public DbSet<LeaveRequest> Employees { get; set; }
-        public DbSet<User> Customer { get; set; }
+        public DbSet<LeaveRequest> LeaveRequests { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<UserLeave> UserLeaves { get; set; }
     }
 }
