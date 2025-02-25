@@ -16,12 +16,12 @@ namespace ELMS.API.Services
             _logger = logger;
         }
 
-        public UserLeaveBalanceDTO GetLeaveBalance(string user)
+        public UserLeaveBalanceDTO GetLeaveBalance(int userId)
         {
             UserLeaveBalanceDTO userLeaveBalanceDTO = new UserLeaveBalanceDTO();
             try
             {
-                userLeaveBalanceDTO = _repository.GetLeaveBalance(user);
+                userLeaveBalanceDTO = _repository.GetLeaveBalance(userId);
             }
             catch(Exception ex)
             {

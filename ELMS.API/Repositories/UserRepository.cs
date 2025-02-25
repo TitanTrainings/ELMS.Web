@@ -16,12 +16,11 @@ namespace ELMS.API.Repositories
             _logger = logger;
         }
 
-        public UserLeaveBalanceDTO GetLeaveBalance(string user)
+        public UserLeaveBalanceDTO GetLeaveBalance(int userId)
         {
             UserLeaveBalanceDTO userLeaveBalanceDTO = null;
             try
-            {
-                var userId = _context.Users.FirstOrDefault(x => x.Username == user).UserId;
+            {               
                 List<UserLeave> userLeaves = _context.UserLeaves.Where(x => x.UserId == userId).ToList();
                 if(userId != null)
                 {

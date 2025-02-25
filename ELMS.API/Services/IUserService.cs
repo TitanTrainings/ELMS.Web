@@ -6,7 +6,7 @@ namespace ELMS.API.Services
 {
     public interface IUserService
     {
-        public UserLeaveBalanceDTO GetLeaveBalance(string user);
+        public UserLeaveBalanceDTO GetLeaveBalance(int userId);
 
         public User? UserByUserId(int userId);
     }
