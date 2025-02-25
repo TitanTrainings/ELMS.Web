@@ -24,8 +24,8 @@ namespace ELMS.API.Controllers
 
 
         // GET: LeaveController
-        [HttpGet("leave-balance")]
-        public ActionResult<UserLeaveBalanceDTO> GetLeaveBalance()
+        [HttpGet("leave-balance/{userId}")]
+        public ActionResult<UserLeaveBalanceDTO> GetLeaveBalance(int userId)
         {
             UserLeaveBalanceDTO userLeaveBalanceDTO = new UserLeaveBalanceDTO();
             try
@@ -42,6 +42,15 @@ namespace ELMS.API.Controllers
                 _logger.LogError(ex, "Error Occured at UserController- GetLeaveBalance");
             }
             return userLeaveBalanceDTO;
+        }
+
+        [HttpGet("getUserByUserId/{userId}")]
+        public IActionResult GetUserByUserId(int userId) 
+        {
+            var user = _userService.UserByUserId(userId);
+
+            return Ok(new { Response = user });
+
         }
     }
 }

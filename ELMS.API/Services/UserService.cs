@@ -1,4 +1,5 @@
 ﻿using ELMS.API.DTO;
+using ELMS.API.Models;
 using ELMS.API.Repositories;
 using ELMS.API.Repository;
 
@@ -27,6 +28,13 @@ namespace ELMS.API.Services
                 _logger.LogError(ex, "Error Occured at UserService- GetLeaveBalance");
             }
             return userLeaveBalanceDTO;
+        }
+
+        public User? UserByUserId(int userId)
+        {
+           var user = _repository.UserByUserId(userId);
+
+            return user;
         }
     }
 }

@@ -72,12 +72,12 @@ namespace ELMS.API.Services
             return response;
         }
 
-        public LeaveRequest ApproveLeaveRequest(LeaveRequest leaveRequest)
+        public LeaveRequest ApproveLeaveRequest(int id)
         {
             LeaveRequest updatedleaveRequest = null;
             try
             {
-                updatedleaveRequest = _repository.ApproveLeaveRequest(leaveRequest);
+                updatedleaveRequest = _repository.ApproveLeaveRequest(id);
             }
             catch(Exception ex)
             {
@@ -86,18 +86,46 @@ namespace ELMS.API.Services
             return updatedleaveRequest;
         }
 
-        public LeaveRequest RejectLeaveRequest(LeaveRequest leaveRequest)
+        public LeaveRequest RejectLeaveRequest(int id)
         {
             LeaveRequest updatedleaveRequest = null;
             try
             {
-                updatedleaveRequest = _repository.RejectLeaveRequest(leaveRequest);
+                updatedleaveRequest = _repository.RejectLeaveRequest(id);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error Occured at LeaveService- RejectLeaveRequest");
             }
             return updatedleaveRequest;
+        }
+
+        public List<LeaveRequest> GetPendingLeaves()
+        {
+            List<LeaveRequest> leaveRequest = new List<LeaveRequest>();
+            try
+            {
+                leaveRequest = _repository.GetPendingLeaves();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error Occured at LeaveRepository - RejectLeaveRequest");
+            }
+            return leaveRequest;
+        }
+
+        public LeaveRequest AddComment(LeaveRequest leaveRequest)
+        {
+            LeaveRequest request = new LeaveRequest();
+            try
+            {
+                _repository.AddComment(leaveRequest);
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return request;
         }
     }
 }

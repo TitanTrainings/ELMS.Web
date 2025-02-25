@@ -27,9 +27,9 @@ namespace ELMS.API.Repository
                     return null;
                 }
                 var currentUser = _context.Users.Where(x => x.Username == user).FirstOrDefault();
-                if(currentUser != null) 
+                if (currentUser != null)
                 {
-                    if (currentUser.Role.Equals("Manager"))
+                    if (currentUser.Role.ToLower().Equals("manager"))
                     {
                         leaveRequests = _context.LeaveRequests.ToList();
                     }
@@ -39,7 +39,7 @@ namespace ELMS.API.Repository
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 leaveRequests = null;
                 _logger.LogError(ex, "Error Occured at LeaveRepository- GetLeaveRequests");
@@ -58,7 +58,7 @@ namespace ELMS.API.Repository
                 }
                 leaveRequest = _context.LeaveRequests.Where(x => x.LeaveRequestId == id).FirstOrDefault();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 leaveRequest = null;
                 _logger.LogError(ex, "Error Occured at LeaveRepository - GetLeaveRequestById");
@@ -70,12 +70,12 @@ namespace ELMS.API.Repository
         {
             try
             {
-                if(leaveRequest == null)
+                if (leaveRequest == null)
                 {
                     return "Invalid Request could not be processed";
                 }
                 var userDetail = _context.Users.FirstOrDefault(x => x.Username == user);
-                if(userDetail != null)
+                if (userDetail != null)
                 {
                     int availableLeaveBalance = 0;
                     if (leaveRequest.LeaveType == "Vacation")
@@ -86,7 +86,7 @@ namespace ELMS.API.Repository
                     {
                         availableLeaveBalance = userDetail.SickLeaveBalance;
                     }
-                    if (availableLeaveBalance >= (leaveRequest.EndDate- leaveRequest.StartDate).Days)
+                    if (availableLeaveBalance >= (leaveRequest.EndDate - leaveRequest.StartDate).Days)
                     {
                         leaveRequest.UserId = userDetail.UserId;
                         _context.LeaveRequests.Add(leaveRequest);
@@ -104,60 +104,65 @@ namespace ELMS.API.Repository
                 }
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error Occured at LeaveRepository - CreateLeaveRequest");
                 return "Error Occurred";
             }
-            
+
         }
 
-        public LeaveRequest ApproveLeaveRequest(LeaveRequest leaveRequest)
+        public LeaveRequest ApproveLeaveRequest(int id)
         {
+            var leaveRequest = _context.LeaveRequests.Find(id);
             try
             {
-                if(leaveRequest.LeaveRequestId != null)
+                if (leaveRequest != null)
                 {
-                    _context.LeaveRequests.Update(leaveRequest);
+                    leaveRequest.Status = "Approved";
+                }
+                _context.LeaveRequests.Update(leaveRequest);
+                _context.SaveChanges();
+
+                if (leaveRequest.Status == "Approved")
+                {
+                    UserLeave userLeave = new UserLeave();
+                    userLeave.UserId = leaveRequest.UserId;
+                    userLeave.LeaveType = leaveRequest.LeaveType;
+                    userLeave.LeaveCount = (leaveRequest.EndDate - leaveRequest.StartDate).Days;
+
+                    _context.Add(userLeave);
                     _context.SaveChanges();
 
-                    if(leaveRequest.Status == "Approved")
+                    User updateUser = _context.Users.FirstOrDefault(x => x.UserId == leaveRequest.UserId);
+                    if (leaveRequest.LeaveType == "Vacation")
                     {
-                        UserLeave userLeave = new UserLeave();
-                        userLeave.UserId = leaveRequest.UserId;
-                        userLeave.LeaveType = leaveRequest.LeaveType;
-                        userLeave.LeaveCount = (leaveRequest.EndDate - leaveRequest.StartDate).Days;
-
-                        _context.Add(userLeave);
-                        _context.SaveChanges();
-
-                        User updateUser = _context.Users.FirstOrDefault(x => x.UserId == leaveRequest.UserId);
-                        if(leaveRequest.LeaveType == "Vacation")
-                        {
-                            updateUser.VacationLeaveBalance = updateUser.VacationLeaveBalance - userLeave.LeaveCount;
-                        }
-                        else if(leaveRequest.LeaveType == "Sick")
-                        {
-                            updateUser.SickLeaveBalance = updateUser.SickLeaveBalance - userLeave.LeaveCount;
-                        }
-                        _context.Users.Update(updateUser);
-                        _context.SaveChanges();
+                        updateUser.VacationLeaveBalance = updateUser.VacationLeaveBalance - userLeave.LeaveCount;
                     }
+                    else if (leaveRequest.LeaveType == "Sick")
+                    {
+                        updateUser.SickLeaveBalance = updateUser.SickLeaveBalance - userLeave.LeaveCount;
+                    }
+                    _context.Users.Update(updateUser);
+                    _context.SaveChanges();
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error Occured at LeaveRepository - ApproveLeaveRequest");
             }
+
             return leaveRequest;
         }
 
-        public LeaveRequest RejectLeaveRequest(LeaveRequest leaveRequest)
+        public LeaveRequest RejectLeaveRequest(int id)
         {
+            var leaveRequest = _context.LeaveRequests.Find(id);
             try
             {
-                if (leaveRequest.LeaveRequestId != null)
+                if (leaveRequest != null)
                 {
+                    leaveRequest.Status = "Rejected";
                     _context.LeaveRequests.Update(leaveRequest);
                     _context.SaveChanges();
                 }
@@ -166,6 +171,32 @@ namespace ELMS.API.Repository
             {
                 _logger.LogError(ex, "Error Occured at LeaveRepository - RejectLeaveRequest");
             }
+            return leaveRequest;
+        }
+
+        public List<LeaveRequest> GetPendingLeaves()
+        {
+            List<LeaveRequest> leaveRequest = new List<LeaveRequest>();
+            try
+            {
+                leaveRequest = _context.LeaveRequests.Where(x => x.Status.ToLower() == "pending").ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error Occured at LeaveRepository - RejectLeaveRequest");
+            }
+            return leaveRequest;
+        }
+
+        public LeaveRequest AddComment(LeaveRequest leaveRequest)
+        {
+            var _leaveRequest = _context.LeaveRequests.Find(leaveRequest.LeaveRequestId);
+
+            _leaveRequest.ManagerComments = leaveRequest.ManagerComments;
+
+            _context.Update(_leaveRequest);
+            _context.SaveChanges(); 
+
             return leaveRequest;
         }
     }

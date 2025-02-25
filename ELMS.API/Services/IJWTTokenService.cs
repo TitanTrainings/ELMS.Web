@@ -1,7 +1,9 @@
-﻿namespace ELMS.API.Services
+﻿using ELMS.API.Models;
+
+namespace ELMS.API.Services
 {
     public interface IJWTTokenService
     {
-        string GenerateJwtToken(string usernname, string password, string role);
+        string GenerateJwtToken(User user);
     }
 }

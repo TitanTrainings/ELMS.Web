@@ -7,7 +7,9 @@ namespace ELMS.API.Repository
         public List<LeaveRequest> GetLeaveRequests(string? user);
         public LeaveRequest GetLeaveRequestById(int id);
         public string CreateLeaveRequest(LeaveRequest leaveRequest, string? user);
-        public LeaveRequest ApproveLeaveRequest(LeaveRequest leaveRequest);
-        public LeaveRequest RejectLeaveRequest(LeaveRequest leaveRequest);
+        public LeaveRequest ApproveLeaveRequest(int id);
+        public LeaveRequest RejectLeaveRequest(int id);
+        public LeaveRequest AddComment(LeaveRequest leaveRequest);
+        public List<LeaveRequest> GetPendingLeaves();
     }
 }

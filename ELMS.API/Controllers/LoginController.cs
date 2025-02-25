@@ -38,7 +38,7 @@ namespace ELMS.API.Controllers
 
             // do the validation and prepare the required fields and create jwt service to get the jwt in string.
             // Creation and generation of token should be in JWTToken service.
-            var token = _jwtTokenService.GenerateJwtToken(user.Username, user.Password, "manager");
+            var token = _jwtTokenService.GenerateJwtToken(_user);
 
             if(token == null)
             {

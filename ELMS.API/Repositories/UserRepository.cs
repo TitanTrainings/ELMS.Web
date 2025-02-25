@@ -45,5 +45,12 @@ namespace ELMS.API.Repositories
             }
             return userLeaveBalanceDTO;
         }
+
+        public User? UserByUserId(int userId)
+        {
+           var user = _context.Users.Find(userId);
+
+            return user;
+        }
     }
 }

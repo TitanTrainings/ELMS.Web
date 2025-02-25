@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using ELMS.API.Models;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -15,15 +16,17 @@ namespace ELMS.API.Services
             _configuration = configuration;
 
         }
-        public string GenerateJwtToken(string usernname, string password, string role)
+        public string GenerateJwtToken(User user)
         {
             //write here the logic to generate the token based on the username and password and role.
             //assign the username , password and role in the claim of the jwt token.
 
             var claims = new[]
        {
-            new Claim("username",usernname),
-            new Claim("role",role)
+            new Claim("userId",user.UserId.ToString()),
+            new Claim("name",user.Name),
+            new Claim("username",user.Username),
+            new Claim("role",user.Role),
         };
 
             var jwtSettings = _configuration.GetSection("JwtSettings");
